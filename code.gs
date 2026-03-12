@@ -55,6 +55,13 @@ function doPost(e) {
   return jsonResponse({ error: 'Acción no válida' });
 }
 
+function formatFecha(val) {
+  if (val instanceof Date) {
+    return Utilities.formatDate(val, Session.getScriptTimeZone(), 'dd/MM/yyyy');
+  }
+  return String(val);
+}
+
 // ── Lecturas ──
 
 function getConfig() {
@@ -82,7 +89,7 @@ function getConfig() {
   const fechasData = fechasSheet.getDataRange().getValues();
   for (let i = 0; i < fechasData.length; i++) {
     fechasFeria.push({
-      fecha: fechasData[i][0],
+      fecha: formatFecha(fechasData[i][0]),
       activa: fechasData[i][1] === true || fechasData[i][1] === 'TRUE'
     });
   }
@@ -95,7 +102,7 @@ function getReportes(fecha) {
   const data = sheet.getDataRange().getValues();
   const reservas = [];
   for (let i = 1; i < data.length; i++) {
-    if (data[i][4] === fecha) {
+    if (formatFecha(data[i][4]) === fecha) {
       reservas.push({
         timestamp: data[i][0],
         vendedor: data[i][1],
@@ -121,7 +128,7 @@ function getFechasUnicas() {
   const data = sheet.getDataRange().getValues();
   const fechas = [];
   for (let i = 0; i < data.length; i++) {
-    fechas.push(data[i][0]);
+    fechas.push(formatFecha(data[i][0]));
   }
   return fechas;
 }
