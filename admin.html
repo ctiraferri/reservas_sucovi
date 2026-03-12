@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Admin – Reservas SUCOVI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#eaeaea;color:#333;min-height:100vh}
+header{background:linear-gradient(90deg,#009246 0%,#009246 30%,#fff 30%,#fff 70%,#ce2b37 70%,#ce2b37 100%);color:#fff;padding:0;position:sticky;top:0;z-index:100;display:flex;align-items:center;height:56px}
+.header-flag-left{flex:1}
+.header-center{background:#fff;display:flex;align-items:center;gap:10px;padding:6px 18px;border-radius:0 0 10px 10px}
+.header-center img{height:42px;width:42px;object-fit:contain;border-radius:50%}
+.header-center .header-text{text-align:left}
+header h1{font-size:15px;font-weight:700;letter-spacing:1px;color:#2c3e50;line-height:1.2}
+header p{font-size:10px;color:#888;margin-top:1px}
+.header-flag-right{flex:1}
+
+main{display:flex;justify-content:center;padding:24px 16px 40px}
+.card{background:#fff;width:100%;max-width:620px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.1);padding:28px 24px 32px}
+.card h2{font-size:18px;font-weight:700;color:#2c3e50;margin-bottom:8px;text-align:center}
+
+.field{margin-bottom:18px}
+.field label{display:block;font-size:13px;font-weight:600;color:#2c3e50;margin-bottom:5px}
+.field input,.field select{width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit;transition:border-color .2s,box-shadow .2s;background:#fafafa}
+.field input:focus{outline:none;border-color:#009246;box-shadow:0 0 0 3px rgba(0,146,70,.15);background:#fff}
+
+.btn-submit{width:100%;padding:12px;background:#009246;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.5px;transition:background .2s;margin-bottom:12px}
+.btn-submit:hover{background:#007a3a}
+.btn-submit:disabled{background:#aaa;cursor:not-allowed}
+.btn-secondary{width:100%;padding:10px;background:#fff;color:#009246;border:1.5px solid #009246;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;margin-bottom:12px}
+.btn-secondary:hover{background:#e8f5e9}
+
+.msg{margin-top:12px;margin-bottom:12px;padding:14px 16px;border-radius:8px;font-size:14px;text-align:center;display:none;line-height:1.5}
+.msg.success{display:block;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7}
+.msg.error{display:block;background:#fdecea;color:#c62828;border:1px solid #ef9a9a}
+
+/* Overlay login */
+.overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:200}
+.overlay-card{background:#fff;border-radius:12px;padding:28px 24px;max-width:360px;width:90%;box-shadow:0 4px 24px rgba(0,0,0,.2)}
+.overlay-card h2{margin-bottom:16px}
+
+/* Sections */
+.section{border-top:1px solid #eee;padding-top:20px;margin-top:20px}
+.section h3{font-size:15px;font-weight:700;color:#2c3e50;margin-bottom:12px}
+.admin-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+.admin-table th{text-align:left;padding:8px 6px;background:#f5f5f5;border-bottom:2px solid #ddd;font-weight:600;color:#2c3e50}
+.admin-table td{padding:8px 6px;border-bottom:1px solid #eee}
+.admin-table input{padding:6px 8px;border:1.5px solid #ddd;border-radius:6px;font-size:13px;font-family:inherit;width:100%}
+.admin-table input:focus{outline:none;border-color:#009246}
+
+.toggle-btn{padding:4px 10px;border:1.5px solid #ddd;border-radius:6px;font-size:12px;cursor:pointer;background:#fff;transition:background .15s}
+.toggle-btn.active{background:#e8f5e9;border-color:#009246;color:#2e7d32}
+.toggle-btn.inactive{background:#fdecea;border-color:#ef9a9a;color:#c62828}
+
+.add-row{display:flex;gap:8px;margin-bottom:12px}
+.add-row input{flex:1;padding:8px 10px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-family:inherit}
+.add-row input:focus{outline:none;border-color:#009246}
+.add-row button{padding:8px 16px;background:#009246;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+.add-row button:hover{background:#007a3a}
+
+.nav-links{text-align:center;margin-top:18px;font-size:13px}
+.nav-links a{color:#009246;text-decoration:none;margin:0 8px}
+.nav-links a:hover{text-decoration:underline}
+
+@media(max-width:480px){
+  .card{padding:20px 16px 24px}
+  header h1{font-size:13px}
+  .header-center{padding:6px 12px;gap:8px}
+  .admin-table{font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-flag-left"></div>
+  <div class="header-center">
+    <img src="logoSUCOVI.jpeg" alt="SUCOVI">
+    <div class="header-text">
+      <h1>ADMIN RESERVAS SUCOVI</h1>
+      <p>Panel de administración</p>
+    </div>
+  </div>
+  <div class="header-flag-right"></div>
+</header>
+
+<!-- Login overlay -->
+<div class="overlay" id="loginOverlay">
+  <div class="overlay-card">
+    <h2 style="text-align:center">Acceso Admin</h2>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" id="inpPass" autocomplete="current-password">
+    </div>
+    <button class="btn-submit" onclick="doLogin()">Ingresar</button>
+    <div id="loginMsg"></div>
+  </div>
+</div>
+
+<main>
+  <div class="card" id="adminPanel" style="display:none">
+    <h2>Panel de Administración</h2>
+    <div id="globalMsg"></div>
+
+    <!-- Precios -->
+    <div class="section" id="secPrecios">
+      <h3>Precios de Items</h3>
+      <table class="admin-table">
+        <thead><tr><th>Item</th><th>Nombre Display</th><th>Precio</th></tr></thead>
+        <tbody id="preciosBody"></tbody>
+      </table>
+      <button class="btn-submit" onclick="savePrecios()">Guardar Precios</button>
+      <div id="preciosMsg"></div>
+    </div>
+
+    <!-- Vendedores -->
+    <div class="section" id="secVendedores">
+      <h3>Vendedores</h3>
+      <table class="admin-table">
+        <thead><tr><th>Nombre</th><th>Estado</th></tr></thead>
+        <tbody id="vendedoresBody"></tbody>
+      </table>
+      <div class="add-row">
+        <input type="text" id="newVendedor" placeholder="Nombre del nuevo vendedor">
+        <button onclick="addVendedor()">Agregar</button>
+      </div>
+      <button class="btn-submit" onclick="saveVendedores()">Guardar Vendedores</button>
+      <div id="vendedoresMsg"></div>
+    </div>
+
+    <!-- Fechas de Feria -->
+    <div class="section" id="secFechas">
+      <h3>Fechas de Feria</h3>
+      <table class="admin-table">
+        <thead><tr><th>Fecha / Nombre</th><th>Estado</th></tr></thead>
+        <tbody id="fechasBody"></tbody>
+      </table>
+      <div class="add-row">
+        <input type="text" id="newFecha" placeholder="Ej: Feria 15/03/2026">
+        <button onclick="addFecha()">Agregar</button>
+      </div>
+      <button class="btn-submit" onclick="saveFechas()">Guardar Fechas</button>
+      <div id="fechasMsg"></div>
+    </div>
+
+    <div class="nav-links">
+      <a href="index.html">Formulario</a>
+      <a href="reportes.html">Reportes</a>
+    </div>
+  </div>
+</main>
+
+<script>
+// ⚠️ Pegar aquí la URL del deployment de Google Apps Script
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNCSGURoT_3aaUzRZqajTAci0HQxTJTlLn7HzrFEf82dSGqNJG8X-xHn0d6ECo7tV02A/exec';
+
+let adminPass = '';
+let preciosData = [];
+let vendedoresData = [];
+let fechasData = [];
+
+// Check session
+(function() {
+  const saved = sessionStorage.getItem('sucovi_admin');
+  if (saved) {
+    adminPass = saved;
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    loadConfig();
+  }
+})();
+
+document.getElementById('inpPass').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
+
+async function doLogin() {
+  const pass = document.getElementById('inpPass').value;
+  if (!pass) return;
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=verifyAdmin&pass=' + encodeURIComponent(pass));
+    const data = await res.json();
+    if (data.valid) {
+      adminPass = pass;
+      sessionStorage.setItem('sucovi_admin', pass);
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'block';
+      loadConfig();
+    } else {
+      showLoginMsg('Contraseña incorrecta.');
+    }
+  } catch (err) {
+    showLoginMsg('Error de conexión.');
+  }
+}
+
+function showLoginMsg(text) {
+  const el = document.getElementById('loginMsg');
+  el.textContent = text;
+  el.className = 'msg error';
+  el.style.display = 'block';
+}
+
+async function loadConfig() {
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=getConfig');
+    const config = await res.json();
+    preciosData = config.precios;
+    renderPrecios();
+
+    fechasData = config.fechasFeria;
+    renderFechas();
+
+    vendedoresData = config.allVendedores;
+    renderVendedores();
+  } catch (err) {
+    showGlobalMsg('error', 'Error al cargar configuración.');
+  }
+}
+
+// ── Precios ──
+function renderPrecios() {
+  const tbody = document.getElementById('preciosBody');
+  tbody.innerHTML = '';
+  preciosData.forEach(function(item, idx) {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + item.key + '</td>' +
+      '<td><input value="' + escHtml(item.nombre) + '" onchange="preciosData[' + idx + '].nombre=this.value"></td>' +
+      '<td><input type="number" value="' + item.precio + '" onchange="preciosData[' + idx + '].precio=Number(this.value)"></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+async function savePrecios() {
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'updatePrecios', password: adminPass, precios: preciosData })
+    });
+    const data = await res.json();
+    showSectionMsg('preciosMsg', data.success ? 'success' : 'error', data.success ? 'Precios guardados.' : (data.error || 'Error'));
+  } catch (err) {
+    showSectionMsg('preciosMsg', 'error', 'Error de conexión.');
+  }
+}
+
+// ── Vendedores ──
+function renderVendedores() {
+  const tbody = document.getElementById('vendedoresBody');
+  tbody.innerHTML = '';
+  vendedoresData.forEach(function(v, idx) {
+    const tr = document.createElement('tr');
+    const cls = v.activo ? 'toggle-btn active' : 'toggle-btn inactive';
+    const label = v.activo ? 'Activo' : 'Inactivo';
+    tr.innerHTML =
+      '<td>' + escHtml(v.nombre) + '</td>' +
+      '<td><button class="' + cls + '" onclick="toggleVendedor(' + idx + ')">' + label + '</button></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function toggleVendedor(idx) {
+  vendedoresData[idx].activo = !vendedoresData[idx].activo;
+  renderVendedores();
+}
+
+function addVendedor() {
+  const inp = document.getElementById('newVendedor');
+  const name = inp.value.trim();
+  if (!name) return;
+  vendedoresData.push({ nombre: name, activo: true });
+  inp.value = '';
+  renderVendedores();
+}
+
+async function saveVendedores() {
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'updateVendedores', password: adminPass, vendedores: vendedoresData })
+    });
+    const data = await res.json();
+    showSectionMsg('vendedoresMsg', data.success ? 'success' : 'error', data.success ? 'Vendedores guardados.' : (data.error || 'Error'));
+  } catch (err) {
+    showSectionMsg('vendedoresMsg', 'error', 'Error de conexión.');
+  }
+}
+
+// ── Fechas ──
+function renderFechas() {
+  const tbody = document.getElementById('fechasBody');
+  tbody.innerHTML = '';
+  fechasData.forEach(function(f, idx) {
+    const tr = document.createElement('tr');
+    const cls = f.activa ? 'toggle-btn active' : 'toggle-btn inactive';
+    const label = f.activa ? 'Activa' : 'Inactiva';
+    tr.innerHTML =
+      '<td>' + escHtml(String(f.fecha)) + '</td>' +
+      '<td><button class="' + cls + '" onclick="toggleFecha(' + idx + ')">' + label + '</button></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function toggleFecha(idx) {
+  fechasData[idx].activa = !fechasData[idx].activa;
+  renderFechas();
+}
+
+function addFecha() {
+  const inp = document.getElementById('newFecha');
+  const val = inp.value.trim();
+  if (!val) return;
+  fechasData.push({ fecha: val, activa: true });
+  inp.value = '';
+  renderFechas();
+}
+
+async function saveFechas() {
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'updateFechasFeria', password: adminPass, fechas: fechasData })
+    });
+    const data = await res.json();
+    showSectionMsg('fechasMsg', data.success ? 'success' : 'error', data.success ? 'Fechas guardadas.' : (data.error || 'Error'));
+  } catch (err) {
+    showSectionMsg('fechasMsg', 'error', 'Error de conexión.');
+  }
+}
+
+// ── Helpers ──
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function showGlobalMsg(type, text) {
+  const el = document.getElementById('globalMsg');
+  el.textContent = text;
+  el.className = 'msg ' + type;
+  el.style.display = 'block';
+}
+
+function showSectionMsg(id, type, text) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'msg ' + type;
+  el.style.display = 'block';
+  setTimeout(function() { el.style.display = 'none'; }, 3000);
+}
+</script>
+</body>
+</html>

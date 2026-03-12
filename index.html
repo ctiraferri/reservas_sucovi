@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Reservas – Feria SUCOVI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#eaeaea;color:#333;min-height:100vh}
+header{background:linear-gradient(90deg,#009246 0%,#009246 30%,#fff 30%,#fff 70%,#ce2b37 70%,#ce2b37 100%);color:#fff;padding:0;position:sticky;top:0;z-index:100;display:flex;align-items:center;height:56px}
+.header-flag-left{flex:1}
+.header-center{background:#fff;display:flex;align-items:center;gap:10px;padding:6px 18px;border-radius:0 0 10px 10px}
+.header-center img{height:42px;width:42px;object-fit:contain;border-radius:50%}
+.header-center .header-text{text-align:left}
+header h1{font-size:15px;font-weight:700;letter-spacing:1px;color:#2c3e50;line-height:1.2}
+header p{font-size:10px;color:#888;margin-top:1px}
+.header-flag-right{flex:1}
+
+main{display:flex;justify-content:center;padding:24px 16px 40px}
+.card{background:#fff;width:100%;max-width:620px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.1);padding:28px 24px 32px}
+.card h2{font-size:18px;font-weight:700;color:#2c3e50;margin-bottom:8px;text-align:center}
+.card .subtitle{font-size:14px;color:#666;text-align:center;margin-bottom:24px;line-height:1.5}
+
+.field{margin-bottom:18px}
+.field label{display:block;font-size:13px;font-weight:600;color:#2c3e50;margin-bottom:5px}
+.field label .req{color:#ce2b37;margin-left:2px}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:14px;font-family:inherit;transition:border-color .2s,box-shadow .2s;background:#fafafa}
+.field input:focus,.field select:focus{outline:none;border-color:#009246;box-shadow:0 0 0 3px rgba(0,146,70,.15);background:#fff}
+
+.btn-submit{width:100%;padding:12px;background:#009246;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.5px;transition:background .2s}
+.btn-submit:hover{background:#007a3a}
+.btn-submit:disabled{background:#aaa;cursor:not-allowed}
+
+.msg{margin-top:18px;padding:14px 16px;border-radius:8px;font-size:14px;text-align:center;display:none;line-height:1.5}
+.msg.success{display:block;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7}
+.msg.error{display:block;background:#fdecea;color:#c62828;border:1px solid #ef9a9a}
+
+/* Items table */
+.items-section{margin-bottom:18px}
+.items-section h3{font-size:14px;font-weight:700;color:#2c3e50;margin-bottom:10px}
+.items-table{width:100%;border-collapse:collapse;font-size:13px}
+.items-table th{text-align:left;padding:8px 6px;background:#f5f5f5;border-bottom:2px solid #ddd;font-weight:600;color:#2c3e50}
+.items-table td{padding:8px 6px;border-bottom:1px solid #eee;vertical-align:middle}
+.items-table .col-item{width:35%}
+.items-table .col-precio{width:20%;text-align:right}
+.items-table .col-cant{width:25%;text-align:center}
+.items-table .col-sub{width:20%;text-align:right;font-weight:600}
+.qty-ctrl{display:flex;align-items:center;justify-content:center;gap:4px}
+.qty-ctrl button{width:28px;height:28px;border:1.5px solid #ddd;border-radius:6px;background:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#333;transition:background .15s}
+.qty-ctrl button:hover{background:#e8f5e9;border-color:#009246}
+.qty-ctrl input{width:42px;text-align:center;padding:4px 2px;border:1.5px solid #ddd;border-radius:6px;font-size:14px;font-family:inherit}
+.qty-ctrl input:focus{outline:none;border-color:#009246}
+
+/* Resumen */
+.resumen{background:#f8f9fa;border-radius:8px;padding:16px;margin-bottom:18px}
+.resumen-row{display:flex;justify-content:space-between;padding:4px 0;font-size:14px}
+.resumen-row.total{font-weight:700;font-size:16px;border-top:2px solid #ddd;padding-top:8px;margin-top:4px;color:#2c3e50}
+.resumen-row.saldo{color:#ce2b37;font-weight:600}
+
+.nav-links{text-align:center;margin-top:18px;font-size:13px}
+.nav-links a{color:#009246;text-decoration:none;margin:0 8px}
+.nav-links a:hover{text-decoration:underline}
+
+.loading{text-align:center;padding:40px;color:#888;font-size:14px}
+
+@media(max-width:480px){
+  .card{padding:20px 16px 24px}
+  header h1{font-size:13px}
+  .header-center{padding:6px 12px;gap:8px}
+  .items-table{font-size:12px}
+  .items-table th,.items-table td{padding:6px 4px}
+  .qty-ctrl button{width:26px;height:26px}
+  .qty-ctrl input{width:36px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-flag-left"></div>
+  <div class="header-center">
+    <img src="logoSUCOVI.jpeg" alt="SUCOVI">
+    <div class="header-text">
+      <h1>RESERVAS FERIA SUCOVI</h1>
+      <p>Sistema de reservas</p>
+    </div>
+  </div>
+  <div class="header-flag-right"></div>
+</header>
+
+<main>
+  <div class="card">
+    <h2>Nueva Reserva</h2>
+    <p class="subtitle">Completá los datos del feriante y los items a reservar.</p>
+
+    <div id="loading" class="loading">Cargando configuración...</div>
+
+    <form id="reservaForm" novalidate style="display:none">
+      <div class="field">
+        <label>Vendedor <span class="req">*</span></label>
+        <select name="vendedor" id="selVendedor" required>
+          <option value="">Seleccioná un vendedor</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Nombre y Apellido del Feriante <span class="req">*</span></label>
+        <input type="text" name="nombre" id="inpNombre" required autocomplete="name">
+      </div>
+
+      <div class="field">
+        <label>Email del Feriante <span class="req">*</span></label>
+        <input type="email" name="email" id="inpEmail" required autocomplete="email">
+      </div>
+
+      <div class="field">
+        <label>Fecha de Feria <span class="req">*</span></label>
+        <select name="fechaFeria" id="selFecha" required>
+          <option value="">Seleccioná una fecha</option>
+        </select>
+      </div>
+
+      <div class="items-section">
+        <h3>Items a reservar</h3>
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th class="col-item">Item</th>
+              <th class="col-precio">Precio</th>
+              <th class="col-cant">Cantidad</th>
+              <th class="col-sub">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody id="itemsBody"></tbody>
+        </table>
+      </div>
+
+      <div class="resumen">
+        <div class="resumen-row total">
+          <span>Total</span>
+          <span id="totalDisplay">$0</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Monto que abona (seña) <span class="req">*</span></label>
+        <input type="number" name="abono" id="inpAbono" min="0" step="1" required placeholder="Mínimo 50% del total">
+      </div>
+
+      <div class="resumen">
+        <div class="resumen-row">
+          <span>Abona</span>
+          <span id="abonoDisplay">$0</span>
+        </div>
+        <div class="resumen-row saldo">
+          <span>Saldo restante</span>
+          <span id="saldoDisplay">$0</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Método de Pago <span class="req">*</span></label>
+        <select name="metodoPago" id="selMetodo" required>
+          <option value="">Seleccioná método</option>
+          <option value="Efectivo">Efectivo</option>
+          <option value="Transferencia">Transferencia</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-submit" id="btnSubmit">Guardar Reserva</button>
+    </form>
+
+    <div id="msg"></div>
+
+    <div class="nav-links">
+      <a href="admin.html">Admin</a>
+      <a href="reportes.html">Reportes</a>
+    </div>
+  </div>
+</main>
+
+<script>
+// ⚠️ Pegar aquí la URL del deployment de Google Apps Script
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyNCSGURoT_3aaUzRZqajTAci0HQxTJTlLn7HzrFEf82dSGqNJG8X-xHn0d6ECo7tV02A/exec';
+
+const fmt = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' });
+let itemsConfig = [];
+let totalGeneral = 0;
+
+async function init() {
+  if (!SCRIPT_URL) {
+    document.getElementById('loading').textContent = 'Error: URL del script no configurada.';
+    return;
+  }
+  try {
+    const res = await fetch(SCRIPT_URL + '?action=getConfig');
+    const config = await res.json();
+
+    // Vendedores
+    const selV = document.getElementById('selVendedor');
+    config.vendedores.forEach(function(v) {
+      const opt = document.createElement('option');
+      opt.value = v;
+      opt.textContent = v;
+      selV.appendChild(opt);
+    });
+
+    // Fechas de feria (solo activas)
+    const selF = document.getElementById('selFecha');
+    config.fechasFeria.forEach(function(f) {
+      if (f.activa) {
+        const opt = document.createElement('option');
+        opt.value = f.fecha;
+        opt.textContent = f.fecha;
+        selF.appendChild(opt);
+      }
+    });
+
+    // Items
+    itemsConfig = config.precios;
+    const tbody = document.getElementById('itemsBody');
+    itemsConfig.forEach(function(item, idx) {
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td class="col-item">' + item.nombre + '</td>' +
+        '<td class="col-precio">' + fmt.format(item.precio) + '</td>' +
+        '<td class="col-cant"><div class="qty-ctrl">' +
+          '<button type="button" onclick="changeQty(' + idx + ',-1)">−</button>' +
+          '<input type="number" id="qty-' + idx + '" value="0" min="0" onchange="recalc()">' +
+          '<button type="button" onclick="changeQty(' + idx + ',1)">+</button>' +
+        '</div></td>' +
+        '<td class="col-sub" id="sub-' + idx + '">$0</td>';
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('reservaForm').style.display = 'block';
+  } catch (err) {
+    document.getElementById('loading').textContent = 'Error al cargar configuración. Recargá la página.';
+  }
+}
+
+function changeQty(idx, delta) {
+  const inp = document.getElementById('qty-' + idx);
+  let val = parseInt(inp.value) || 0;
+  val = Math.max(0, val + delta);
+  inp.value = val;
+  recalc();
+}
+
+function recalc() {
+  totalGeneral = 0;
+  itemsConfig.forEach(function(item, idx) {
+    const qty = parseInt(document.getElementById('qty-' + idx).value) || 0;
+    const sub = qty * item.precio;
+    document.getElementById('sub-' + idx).textContent = fmt.format(sub);
+    totalGeneral += sub;
+  });
+  document.getElementById('totalDisplay').textContent = fmt.format(totalGeneral);
+  updateSaldo();
+}
+
+function updateSaldo() {
+  const abono = parseFloat(document.getElementById('inpAbono').value) || 0;
+  document.getElementById('abonoDisplay').textContent = fmt.format(abono);
+  document.getElementById('saldoDisplay').textContent = fmt.format(totalGeneral - abono);
+}
+
+document.getElementById('inpAbono').addEventListener('input', updateSaldo);
+
+// Submit
+document.getElementById('reservaForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const msgEl = document.getElementById('msg');
+  msgEl.className = 'msg';
+  msgEl.style.display = 'none';
+
+  const vendedor = document.getElementById('selVendedor').value;
+  const nombre = document.getElementById('inpNombre').value.trim();
+  const email = document.getElementById('inpEmail').value.trim();
+  const fechaFeria = document.getElementById('selFecha').value;
+  const abono = parseFloat(document.getElementById('inpAbono').value) || 0;
+  const metodoPago = document.getElementById('selMetodo').value;
+
+  // Validaciones
+  if (!vendedor || !nombre || !email || !fechaFeria || !metodoPago) {
+    showMsg('error', 'Por favor completá todos los campos obligatorios.');
+    return;
+  }
+  if (!document.getElementById('inpEmail').validity.valid) {
+    showMsg('error', 'Por favor ingresá un email válido.');
+    return;
+  }
+
+  // Items seleccionados
+  const items = [];
+  itemsConfig.forEach(function(item, idx) {
+    const qty = parseInt(document.getElementById('qty-' + idx).value) || 0;
+    if (qty > 0) {
+      items.push({
+        nombre: item.nombre,
+        cantidad: qty,
+        precioUnit: item.precio,
+        subtotal: qty * item.precio
+      });
+    }
+  });
+
+  if (items.length === 0) {
+    showMsg('error', 'Seleccioná al menos un item.');
+    return;
+  }
+
+  if (totalGeneral <= 0) {
+    showMsg('error', 'El total debe ser mayor a cero.');
+    return;
+  }
+
+  const minAbono = Math.ceil(totalGeneral * 0.5);
+  if (abono < minAbono) {
+    showMsg('error', 'El abono mínimo es del 50% del total: ' + fmt.format(minAbono));
+    return;
+  }
+
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.textContent = 'Guardando…';
+
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'saveReserva',
+        vendedor: vendedor,
+        nombre: nombre,
+        email: email,
+        fechaFeria: fechaFeria,
+        items: items,
+        total: totalGeneral,
+        abono: abono,
+        metodoPago: metodoPago
+      })
+    });
+    const result = await res.json();
+    if (result.success) {
+      document.getElementById('reservaForm').style.display = 'none';
+      showMsg('success', '¡Reserva guardada! ID: ' + result.idReserva + '. Se envió confirmación por email.');
+    } else {
+      showMsg('error', result.error || 'Error al guardar la reserva.');
+      btn.disabled = false;
+      btn.textContent = 'Guardar Reserva';
+    }
+  } catch (err) {
+    showMsg('error', 'Error de conexión. Verificá tu internet e intentá de nuevo.');
+    btn.disabled = false;
+    btn.textContent = 'Guardar Reserva';
+  }
+});
+
+function showMsg(type, text) {
+  const el = document.getElementById('msg');
+  el.textContent = text;
+  el.className = 'msg ' + type;
+  el.style.display = 'block';
+}
+
+init();
+</script>
+</body>
+</html>
